@@ -57,7 +57,7 @@ export async function sendReportEmail(payload: EmailPayload): Promise<void> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'GEO Analyzer <onboarding@resend.dev>',
+        from: 'GEO Analyzer <reports@accelerate-bots.com>',
         to: [payload.to],
         subject: `Your GEO Report: ${payload.brandName} scored ${payload.score}/100`,
         html,
