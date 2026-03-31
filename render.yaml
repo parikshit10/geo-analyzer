@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: geo-analyzer
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: MODEL
+        value: z-ai/glm-5-turbo
+      - key: BASE_URL
+        sync: false
+      - key: PORT
+        value: 10000

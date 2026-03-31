@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GEO ANALYZER | See How AI Sees You</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#e9ffb9",
+        "surface-container-high": "#1f1c37",
+        "surface-dim": "#0e0c20",
+        "surface-container-low": "#131027",
+        "surface-container-highest": "#25223f",
+        "error": "#ff7351",
+        "secondary-dim": "#e4006c",
+        "secondary-container": "#bb0058",
+        "inverse-primary": "#4b6800",
+        "on-surface-variant": "#aca8c3",
+        "tertiary-dim": "#00deec",
+        "primary-dim": "#b0ed00",
+        "tertiary-fixed": "#00eefc",
+        "surface-container-lowest": "#000000",
+        "secondary-fixed-dim": "#ffadc0",
+        "on-surface": "#e7e2ff",
+        "on-secondary": "#47001d",
+        "on-error-container": "#ffd2c8",
+        "on-primary": "#4a6600",
+        "on-tertiary-fixed-variant": "#005e64",
+        "surface-tint": "#e9ffb9",
+        "secondary-fixed": "#ffc1ce",
+        "on-primary-fixed-variant": "#4b6800",
+        "on-tertiary": "#005d63",
+        "background": "#0e0c20",
+        "surface-variant": "#25223f",
+        "error-dim": "#d53d18",
+        "on-secondary-container": "#fff5f6",
+        "error-container": "#b92902",
+        "on-secondary-fixed": "#6d0030",
+        "on-background": "#e7e2ff",
+        "outline-variant": "#48455c",
+        "primary-container": "#bbfd00",
+        "on-secondary-fixed-variant": "#a1004b",
+        "on-primary-container": "#435d00",
+        "tertiary-fixed-dim": "#00deec",
+        "secondary": "#ff6b98",
+        "tertiary-container": "#00eefc",
+        "inverse-surface": "#fcf8ff",
+        "on-error": "#450900",
+        "primary-fixed": "#bbfd00",
+        "primary-fixed-dim": "#b0ed00",
+        "on-tertiary-fixed": "#003f43",
+        "surface-bright": "#2b2848",
+        "inverse-on-surface": "#55526a",
+        "surface": "#0e0c20",
+        "on-primary-fixed": "#344900",
+        "on-tertiary-container": "#005359",
+        "tertiary": "#8ff5ff",
+        "surface-container": "#19162f",
+        "outline": "#76738c"
+      },
+      fontFamily: {
+        "headline": ["Space Grotesk"],
+        "body": ["Manrope"],
+        "label": ["Manrope"]
+      },
+      borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+    },
+  },
+}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .material-symbols-outlined[data-fill="1"] {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+
+  body {
+    background-color: #0e0c20;
+    color: #e7e2ff;
+    font-family: 'Manrope', sans-serif;
+    overflow-x: hidden;
+  }
+
+  .editorial { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+
+  /* --- Ambient mesh background --- */
+  .bg-mesh {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 600px 500px at 8% 15%, rgba(255,107,152,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 600px at 92% 75%, rgba(143,245,255,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 400px at 50% 50%, rgba(187,253,0,0.03) 0%, transparent 60%);
+  }
+
+  /* --- Glassmorphism --- */
+  .glass { background: rgba(37,34,63,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+  .glass-subtle { background: rgba(37,34,63,0.35); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+
+  /* --- Animated floating orbs --- */
+  @keyframes drift-a {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(40px,-60px) scale(1.1); }
+    66% { transform: translate(-30px,40px) scale(0.95); }
+  }
+  @keyframes drift-b {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(-50px,30px) scale(1.05); }
+    66% { transform: translate(60px,-20px) scale(0.9); }
+  }
+  @keyframes drift-c {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(30px,50px) scale(1.08); }
+  }
+  .orb-a { animation: drift-a 18s ease-in-out infinite; }
+  .orb-b { animation: drift-b 22s ease-in-out infinite; }
+  .orb-c { animation: drift-c 15s ease-in-out infinite; }
+
+  /* --- Score ring animation --- */
+  @keyframes score-fill {
+    from { stroke-dashoffset: 339.292; }
+  }
+  .score-ring { transition: stroke-dashoffset 2s cubic-bezier(0.4,0,0.2,1); }
+
+  /* --- Scroll-reveal --- */
+  .reveal {
+    opacity: 0; transform: translateY(32px);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* --- Horizontal marquee --- */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .marquee-track { animation: marquee 30s linear infinite; }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  /* --- Pulse glow on CTA --- */
+  @keyframes pulse-glow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(187,253,0,0.4); }
+    50% { box-shadow: 0 0 24px 4px rgba(187,253,0,0.15); }
+  }
+  .cta-pulse { animation: pulse-glow 3s ease-in-out infinite; }
+
+  /* --- Typing cursor --- */
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .cursor-blink::after {
+    content:'|'; animation: blink 1s step-end infinite; color: #bbfd00; margin-left:2px;
+  }
+
+  /* --- Dimension bar fill --- */
+  @keyframes bar-fill { from { width: 0; } }
+  .dim-bar { animation: bar-fill 1.5s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+  /* --- Subtle grain overlay --- */
+  .grain::before {
+    content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat; background-size: 128px;
+  }
+
+  /* --- Custom scrollbar --- */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: #0e0c20; }
+  ::-webkit-scrollbar-thumb { background: #25223f; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #48455c; }
+
+  /* Number counter animation */
+  @keyframes count-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Floating badge hover */
+  .energy-pill { transition: transform 0.2s, box-shadow 0.2s; }
+  .energy-pill:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(187,253,0,0.2); }
+
+  /* --- Modal overlay --- */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(10,8,24,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.16,1,0.3,1);
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: auto; }
+  .modal-box {
+    background: #19162f; border-radius: 1.5rem; padding: 2.5rem;
+    max-width: 440px; width: 90%; position: relative;
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+    box-shadow: 0 40px 120px -30px rgba(0,0,0,0.7);
+  }
+  .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+  .modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: none; border: none; color: #aca8c3; cursor: pointer;
+    padding: 4px; border-radius: 8px; transition: color 0.2s;
+  }
+  .modal-close:hover { color: #e7e2ff; }
+
+  /* Modal states */
+  .modal-state { display: none; }
+  .modal-state.active { display: block; }
+
+  /* Spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { animation: spin 1s linear infinite; }
+</style>
+</head>
+
+<body class="grain">
+<div class="bg-mesh"></div>
+
+<!-- ============================================ -->
+<!-- NAVIGATION — Floating Glassmorphic Pill      -->
+<!-- ============================================ -->
+<nav class="fixed top-5 left-1/2 -translate-x-1/2 w-[92%] max-w-6xl rounded-full glass flex justify-between items-center px-8 py-3 z-50 shadow-[0_8px_60px_-12px_rgba(14,12,32,0.8)]">
+  <a href="#" class="editorial text-xl font-bold tracking-tighter text-primary uppercase">GEO<span class="text-on-surface-variant">_</span>ANALYZER</a>
+  <div class="hidden md:flex gap-10 items-center editorial text-sm tracking-tight">
+    <a href="#how" class="text-on-surface-variant hover:text-primary transition-colors">How It Works</a>
+    <a href="#dimensions" class="text-on-surface-variant hover:text-primary transition-colors">Scoring</a>
+    <a href="#proof" class="text-on-surface-variant hover:text-primary transition-colors">Results</a>
+    <a href="#faq" class="text-on-surface-variant hover:text-primary transition-colors">FAQ</a>
+  </div>
+  <a href="#cta" class="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-2 rounded-full font-bold text-sm hover:scale-105 active:scale-95 transition-all editorial">
+    Analyze Free
+  </a>
+</nav>
+
+<!-- ============================================ -->
+<!-- HERO — Editorial splash with URL input       -->
+<!-- ============================================ -->
+<section class="relative min-h-screen flex items-center justify-center px-6 pt-28 pb-20 overflow-hidden">
+  <!-- Ambient orbs -->
+  <div class="orb-a absolute -top-32 right-[10%] w-[500px] h-[500px] rounded-full bg-secondary/[0.07] blur-[120px]"></div>
+  <div class="orb-b absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-tertiary/[0.06] blur-[100px]"></div>
+  <div class="orb-c absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full bg-primary/[0.04] blur-[90px]"></div>
+
+  <div class="relative z-10 max-w-5xl mx-auto text-center">
+    <!-- Energy pill -->
+    <div class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-secondary-container/80 energy-pill">
+      <span class="w-2 h-2 rounded-full bg-on-surface animate-pulse"></span>
+      <span class="text-on-surface text-xs font-bold tracking-[0.15em] uppercase font-label">Generative Engine Optimization</span>
+    </div>
+
+    <h1 class="editorial text-[clamp(3rem,8vw,7.5rem)] font-bold text-on-surface leading-[0.92] mb-8">
+      SEE HOW<br/><span class="text-primary italic">AI SEES</span> YOU.
+    </h1>
+
+    <p class="font-body text-on-surface-variant text-xl max-w-2xl mx-auto mb-14 leading-relaxed">
+      Your site gets cited — or it doesn't. Analyze how ChatGPT, Perplexity, and Gemini perceive your pages, then optimize for the engines that actually matter.
+    </p>
+
+    <!-- URL Input Bar -->
+    <div class="w-full max-w-3xl mx-auto glass rounded-2xl p-2 shadow-[0_20px_80px_-20px_rgba(14,12,32,0.9)]">
+      <div class="flex flex-col sm:flex-row gap-2">
+        <div class="flex-grow flex items-center px-5 bg-surface-container-highest rounded-xl focus-within:ring-2 focus-within:ring-primary/60 transition-all group">
+          <span class="material-symbols-outlined text-on-surface-variant group-focus-within:text-primary mr-3 transition-colors">language</span>
+          <input
+            id="hero-url"
+            type="url"
+            placeholder="https://your-site.com"
+            class="w-full py-4 bg-transparent border-none text-on-surface focus:ring-0 placeholder:text-outline font-body text-base"
+          />
+        </div>
+        <button id="hero-btn" class="cta-pulse px-8 py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 editorial text-sm tracking-tight whitespace-nowrap">
+          <span>Run GEO Analysis</span>
+          <span class="material-symbols-outlined text-xl">bolt</span>
+        </button>
+      </div>
+    </div>
+
+    <p class="mt-5 text-on-surface-variant/50 text-sm flex items-center justify-center gap-1.5 font-body">
+      <span class="material-symbols-outlined text-sm">lock</span>
+      Free audit — no credit card, no signup.
+    </p>
+
+    <!-- Stat counters -->
+    <div class="mt-20 flex flex-wrap justify-center gap-x-16 gap-y-6">
+      <div class="text-center">
+        <div class="editorial text-4xl font-bold text-primary">12,400<span class="text-secondary">+</span></div>
+        <div class="text-on-surface-variant text-xs mt-1 tracking-wide uppercase">Pages Analyzed</div>
+      </div>
+      <div class="text-center">
+        <div class="editorial text-4xl font-bold text-tertiary">5</div>
+        <div class="text-on-surface-variant text-xs mt-1 tracking-wide uppercase">Scoring Dimensions</div>
+      </div>
+      <div class="text-center">
+        <div class="editorial text-4xl font-bold text-secondary">38%</div>
+        <div class="text-on-surface-variant text-xs mt-1 tracking-wide uppercase">Avg. Traffic Lift</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- LOGOS MARQUEE — Trusted AI engines           -->
+<!-- ============================================ -->
+<section class="py-6 overflow-hidden relative">
+  <div class="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-background to-transparent z-10"></div>
+  <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-background to-transparent z-10"></div>
+  <div class="flex whitespace-nowrap marquee-track">
+    <!-- Repeat set twice for seamless loop -->
+    <div class="flex items-center gap-16 px-8 opacity-30">
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">ChatGPT</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Google AI Overviews</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Perplexity</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Claude</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Bing Copilot</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Gemini</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">You.com</span>
+      <span class="text-outline">·</span>
+    </div>
+    <div class="flex items-center gap-16 px-8 opacity-30">
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">ChatGPT</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Google AI Overviews</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Perplexity</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Claude</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Bing Copilot</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">Gemini</span>
+      <span class="text-outline">·</span>
+      <span class="editorial text-lg font-semibold tracking-wider uppercase">You.com</span>
+      <span class="text-outline">·</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- HOW IT WORKS — 3-step editorial process      -->
+<!-- ============================================ -->
+<section id="how" class="py-32 px-6 bg-surface-container-low relative">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal flex flex-col lg:flex-row justify-between items-end mb-24 gap-8">
+      <div class="max-w-2xl">
+        <span class="text-tertiary-dim font-bold text-xs tracking-[0.2em] uppercase font-label mb-4 block">The Process</span>
+        <h2 class="editorial text-5xl md:text-7xl font-bold text-on-surface leading-[0.95]">
+          THREE MOVES.<br/><span class="text-tertiary italic">TOTAL CLARITY.</span>
+        </h2>
+      </div>
+      <p class="text-on-surface-variant text-lg max-w-md leading-relaxed font-body lg:text-right">
+        Our engine deconstructs how LLMs perceive your site's narrative authority — from crawl to citation.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Step 1 -->
+      <div class="reveal group relative p-10 pb-12 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-500 overflow-hidden">
+        <div class="absolute -top-8 -right-4 editorial text-[10rem] font-black text-on-surface/[0.03] group-hover:text-primary/[0.06] transition-colors duration-500 leading-none select-none">01</div>
+        <div class="relative z-10">
+          <div class="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center mb-8 group-hover:bg-primary/10 transition-colors duration-500">
+            <span class="material-symbols-outlined text-primary text-3xl">input</span>
+          </div>
+          <h3 class="editorial text-2xl font-bold text-on-surface mb-3">Drop Your URL</h3>
+          <p class="text-on-surface-variant font-body leading-relaxed">
+            Paste any page — landing page, blog post, product page, docs. We handle single pages and full-site crawls.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="reveal group relative p-10 pb-12 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-500 overflow-hidden" style="transition-delay:0.1s">
+        <div class="absolute -top-8 -right-4 editorial text-[10rem] font-black text-on-surface/[0.03] group-hover:text-tertiary/[0.06] transition-colors duration-500 leading-none select-none">02</div>
+        <div class="relative z-10">
+          <div class="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center mb-8 group-hover:bg-tertiary/10 transition-colors duration-500">
+            <span class="material-symbols-outlined text-tertiary text-3xl">psychology</span>
+          </div>
+          <h3 class="editorial text-2xl font-bold text-on-surface mb-3">AI Simulation Scan</h3>
+          <p class="text-on-surface-variant font-body leading-relaxed">
+            We simulate crawlers from ChatGPT, Perplexity, and Google AI Overviews — analyzing passage citability, semantic structure, and authority signals.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="reveal group relative p-10 pb-12 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-500 overflow-hidden" style="transition-delay:0.2s">
+        <div class="absolute -top-8 -right-4 editorial text-[10rem] font-black text-on-surface/[0.03] group-hover:text-secondary/[0.06] transition-colors duration-500 leading-none select-none">03</div>
+        <div class="relative z-10">
+          <div class="w-16 h-16 rounded-2xl bg-surface-container-highest flex items-center justify-center mb-8 group-hover:bg-secondary/10 transition-colors duration-500">
+            <span class="material-symbols-outlined text-secondary text-3xl">analytics</span>
+          </div>
+          <h3 class="editorial text-2xl font-bold text-on-surface mb-3">Get Your GEO Score</h3>
+          <p class="text-on-surface-variant font-body leading-relaxed">
+            Receive a weighted score across 5 dimensions, actionable fixes ranked by impact, and a before/after projection.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- SCORING DIMENSIONS — The 5 pillars           -->
+<!-- ============================================ -->
+<section id="dimensions" class="py-32 px-6 relative overflow-hidden">
+  <!-- Decorative orbs -->
+  <div class="orb-b absolute top-20 right-[-8%] w-[350px] h-[350px] rounded-full bg-primary/[0.04] blur-[100px]"></div>
+  <div class="orb-a absolute bottom-10 left-[-5%] w-[280px] h-[280px] rounded-full bg-secondary/[0.05] blur-[80px]"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto">
+    <div class="reveal text-center mb-24">
+      <span class="text-secondary font-bold text-xs tracking-[0.2em] uppercase font-label mb-4 block">The Score</span>
+      <h2 class="editorial text-5xl md:text-7xl font-bold text-on-surface leading-[0.95]">
+        FIVE DIMENSIONS.<br/><span class="text-secondary italic">ONE NUMBER.</span>
+      </h2>
+      <p class="text-on-surface-variant text-lg max-w-xl mx-auto mt-6 font-body">
+        Every page is scored across the five pillars that determine whether AI engines cite you or ignore you.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <!-- Left: Score visualization -->
+      <div class="reveal flex justify-center">
+        <div class="relative w-[320px] h-[320px]">
+          <!-- Background ring -->
+          <svg class="w-full h-full -rotate-90" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#25223f" stroke-width="8"/>
+            <circle cx="60" cy="60" r="54" fill="none" stroke="url(#scoreGrad)" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="67.858"
+              class="score-ring"/>
+            <defs>
+              <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#bbfd00"/>
+                <stop offset="50%" stop-color="#8ff5ff"/>
+                <stop offset="100%" stop-color="#ff6b98"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <!-- Center score -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="editorial text-7xl font-bold text-on-surface">80</span>
+            <span class="text-on-surface-variant text-sm font-label tracking-wider uppercase">/100 GEO Score</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Dimension bars -->
+      <div class="reveal space-y-7">
+        <!-- Citability -->
+        <div>
+          <div class="flex justify-between items-baseline mb-2">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary text-xl">format_quote</span>
+              <span class="editorial font-semibold text-on-surface">Citability</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="editorial font-bold text-primary text-lg">85</span>
+              <span class="text-on-surface-variant text-xs font-label">25% weight</span>
+            </div>
+          </div>
+          <div class="h-2 rounded-full bg-surface-container-highest overflow-hidden">
+            <div class="dim-bar h-full rounded-full bg-gradient-to-r from-primary to-primary-container" style="width:85%"></div>
+          </div>
+        </div>
+
+        <!-- Structural Readability -->
+        <div>
+          <div class="flex justify-between items-baseline mb-2">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-tertiary text-xl">view_headline</span>
+              <span class="editorial font-semibold text-on-surface">Structural Readability</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="editorial font-bold text-tertiary text-lg">78</span>
+              <span class="text-on-surface-variant text-xs font-label">20% weight</span>
+            </div>
+          </div>
+          <div class="h-2 rounded-full bg-surface-container-highest overflow-hidden">
+            <div class="dim-bar h-full rounded-full bg-gradient-to-r from-tertiary to-tertiary-dim" style="width:78%"></div>
+          </div>
+        </div>
+
+        <!-- Authority Signals -->
+        <div>
+          <div class="flex justify-between items-baseline mb-2">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-secondary text-xl">verified</span>
+              <span class="editorial font-semibold text-on-surface">Authority Signals</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="editorial font-bold text-secondary text-lg">72</span>
+              <span class="text-on-surface-variant text-xs font-label">20% weight</span>
+            </div>
+          </div>
+          <div class="h-2 rounded-full bg-surface-container-highest overflow-hidden">
+            <div class="dim-bar h-full rounded-full bg-gradient-to-r from-secondary to-secondary-dim" style="width:72%"></div>
+          </div>
+        </div>
+
+        <!-- Multi-Modal -->
+        <div>
+          <div class="flex justify-between items-baseline mb-2">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-primary-dim text-xl">perm_media</span>
+              <span class="editorial font-semibold text-on-surface">Multi-Modal Richness</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="editorial font-bold text-primary-dim text-lg">88</span>
+              <span class="text-on-surface-variant text-xs font-label">15% weight</span>
+            </div>
+          </div>
+          <div class="h-2 rounded-full bg-surface-container-highest overflow-hidden">
+            <div class="dim-bar h-full rounded-full bg-gradient-to-r from-primary-dim to-primary" style="width:88%"></div>
+          </div>
+        </div>
+
+        <!-- Technical Accessibility -->
+        <div>
+          <div class="flex justify-between items-baseline mb-2">
+            <div class="flex items-center gap-3">
+              <span class="material-symbols-outlined text-tertiary-dim text-xl">terminal</span>
+              <span class="editorial font-semibold text-on-surface">Technical Accessibility</span>
+            </div>
+            <div class="flex items-baseline gap-2">
+              <span class="editorial font-bold text-tertiary-dim text-lg">82</span>
+              <span class="text-on-surface-variant text-xs font-label">20% weight</span>
+            </div>
+          </div>
+          <div class="h-2 rounded-full bg-surface-container-highest overflow-hidden">
+            <div class="dim-bar h-full rounded-full bg-gradient-to-r from-tertiary-dim to-tertiary" style="width:82%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- WHAT WE CHECK — Feature bento grid           -->
+<!-- ============================================ -->
+<section class="py-32 px-6 bg-surface-container-low">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal text-center mb-20">
+      <span class="text-primary-dim font-bold text-xs tracking-[0.2em] uppercase font-label mb-4 block">Under The Hood</span>
+      <h2 class="editorial text-5xl md:text-6xl font-bold text-on-surface">WHAT WE <span class="text-primary italic">ACTUALLY</span> CHECK</h2>
+    </div>
+
+    <!-- Bento grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Card: AI Crawler Access -->
+      <div class="reveal group p-8 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-300">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-primary text-2xl">smart_toy</span>
+        </div>
+        <h3 class="editorial text-lg font-bold text-on-surface mb-2">AI Crawler Detection</h3>
+        <p class="text-on-surface-variant text-sm leading-relaxed font-body">Checks robots.txt for GPTBot, ClaudeBot, PerplexityBot, GoogleOther, and Bingbot crawler permissions.</p>
+      </div>
+
+      <!-- Card: llms.txt -->
+      <div class="reveal group p-8 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-300" style="transition-delay:0.05s">
+        <div class="w-12 h-12 rounded-xl bg-tertiary/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-tertiary text-2xl">description</span>
+        </div>
+        <h3 class="editorial text-lg font-bold text-on-surface mb-2">llms.txt Compliance</h3>
+        <p class="text-on-surface-variant text-sm leading-relaxed font-body">Validates presence and correctness of the llms.txt standard — the new robots.txt for generative engines.</p>
+      </div>
+
+      <!-- Card: Passage Scoring -->
+      <div class="reveal group p-8 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-300" style="transition-delay:0.1s">
+        <div class="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-secondary text-2xl">format_quote</span>
+        </div>
+        <h3 class="editorial text-lg font-bold text-on-surface mb-2">Passage Citability</h3>
+        <p class="text-on-surface-variant text-sm leading-relaxed font-body">Scans for self-contained 134–167 word passages that LLMs prefer to extract and cite as authoritative snippets.</p>
+      </div>
+
+      <!-- Card: SSR Detection -->
+      <div class="reveal group p-8 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-300" style="transition-delay:0.15s">
+        <div class="w-12 h-12 rounded-xl bg-primary-dim/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-primary-dim text-2xl">code</span>
+        </div>
+        <h3 class="editorial text-lg font-bold text-on-surface mb-2">SSR vs. CSR Analysis</h3>
+        <p class="text-on-surface-variant text-sm leading-relaxed font-body">Detects client-side rendering that hides content from AI crawlers. Flags JavaScript-dependent content blocks.</p>
+      </div>
+
+      <!-- Card: Schema & Structured Data -->
+      <div class="reveal group p-8 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-300" style="transition-delay:0.2s">
+        <div class="w-12 h-12 rounded-xl bg-tertiary-dim/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-tertiary-dim text-2xl">data_object</span>
+        </div>
+        <h3 class="editorial text-lg font-bold text-on-surface mb-2">Schema Markup</h3>
+        <p class="text-on-surface-variant text-sm leading-relaxed font-body">Validates JSON-LD structured data that feeds entity knowledge graphs used by AI answer engines.</p>
+      </div>
+
+      <!-- Card: Brand Mentions -->
+      <div class="reveal group p-8 bg-surface-container-high rounded-2xl hover:bg-surface-container-highest transition-all duration-300" style="transition-delay:0.25s">
+        <div class="w-12 h-12 rounded-xl bg-secondary-dim/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <span class="material-symbols-outlined text-secondary-dim text-2xl">campaign</span>
+        </div>
+        <h3 class="editorial text-lg font-bold text-on-surface mb-2">Brand Authority Signals</h3>
+        <p class="text-on-surface-variant text-sm leading-relaxed font-body">Evaluates E-E-A-T markers, author bios, citations, source attribution, and cross-platform brand consistency.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- DASHBOARD PREVIEW — Glassmorphic mockup      -->
+<!-- ============================================ -->
+<section class="py-32 px-6 relative overflow-hidden">
+  <div class="orb-c absolute top-10 left-[15%] w-[400px] h-[400px] rounded-full bg-tertiary/[0.04] blur-[100px]"></div>
+  <div class="orb-a absolute bottom-20 right-[10%] w-[350px] h-[350px] rounded-full bg-secondary/[0.05] blur-[90px]"></div>
+
+  <div class="relative z-10 max-w-6xl mx-auto">
+    <div class="reveal text-center mb-16">
+      <span class="text-tertiary font-bold text-xs tracking-[0.2em] uppercase font-label mb-4 block">The Output</span>
+      <h2 class="editorial text-5xl md:text-6xl font-bold text-on-surface">YOUR REPORT, <span class="text-tertiary italic">DECODED.</span></h2>
+    </div>
+
+    <!-- Dashboard mockup -->
+    <div class="reveal glass rounded-3xl p-1 shadow-[0_40px_120px_-30px_rgba(0,0,0,0.6)]">
+      <div class="bg-surface-container rounded-[1.25rem] p-8 md:p-10">
+        <!-- Top bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <span class="material-symbols-outlined text-primary text-xl">language</span>
+              <span class="editorial text-lg font-bold text-on-surface">example.com/blog/ai-strategy</span>
+            </div>
+            <span class="text-on-surface-variant text-xs font-label">Analyzed 2.4s ago · 1 page</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold editorial">
+              <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+              Score: 80/100
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/40 text-secondary text-xs font-bold editorial">
+              3 Critical Fixes
+            </span>
+          </div>
+        </div>
+
+        <!-- Dashboard grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Mini score cards -->
+          <div class="bg-surface-container-high rounded-2xl p-6">
+            <div class="text-on-surface-variant text-xs font-label uppercase tracking-wider mb-3">Top Issue</div>
+            <div class="flex items-center gap-3 mb-3">
+              <span class="material-symbols-outlined text-error text-2xl">warning</span>
+              <span class="editorial font-bold text-on-surface">Missing llms.txt</span>
+            </div>
+            <p class="text-on-surface-variant text-sm font-body leading-relaxed">No llms.txt found at root. This file tells AI engines what content to prioritize.</p>
+          </div>
+
+          <div class="bg-surface-container-high rounded-2xl p-6">
+            <div class="text-on-surface-variant text-xs font-label uppercase tracking-wider mb-3">Quick Win</div>
+            <div class="flex items-center gap-3 mb-3">
+              <span class="material-symbols-outlined text-primary text-2xl">lightbulb</span>
+              <span class="editorial font-bold text-on-surface">Add Author Bios</span>
+            </div>
+            <p class="text-on-surface-variant text-sm font-body leading-relaxed">Pages lack visible author attribution. AI engines weight E-E-A-T signals heavily for citation.</p>
+          </div>
+
+          <div class="bg-surface-container-high rounded-2xl p-6">
+            <div class="text-on-surface-variant text-xs font-label uppercase tracking-wider mb-3">Strength</div>
+            <div class="flex items-center gap-3 mb-3">
+              <span class="material-symbols-outlined text-tertiary text-2xl">check_circle</span>
+              <span class="editorial font-bold text-on-surface">Strong Passages</span>
+            </div>
+            <p class="text-on-surface-variant text-sm font-body leading-relaxed">8 of 12 content blocks are self-contained and within the optimal citability word range.</p>
+          </div>
+        </div>
+
+        <!-- Crawler status row -->
+        <div class="mt-4 bg-surface-container-high rounded-2xl p-6">
+          <div class="text-on-surface-variant text-xs font-label uppercase tracking-wider mb-4">AI Crawler Access</div>
+          <div class="flex flex-wrap gap-3">
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 text-sm">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+              <span class="editorial font-semibold text-primary">GPTBot</span>
+              <span class="text-on-surface-variant text-xs">Allowed</span>
+            </span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 text-sm">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+              <span class="editorial font-semibold text-primary">Google-Extended</span>
+              <span class="text-on-surface-variant text-xs">Allowed</span>
+            </span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-error/10 text-sm">
+              <span class="w-2 h-2 rounded-full bg-error"></span>
+              <span class="editorial font-semibold text-error">ClaudeBot</span>
+              <span class="text-on-surface-variant text-xs">Blocked</span>
+            </span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 text-sm">
+              <span class="w-2 h-2 rounded-full bg-primary"></span>
+              <span class="editorial font-semibold text-primary">PerplexityBot</span>
+              <span class="text-on-surface-variant text-xs">Allowed</span>
+            </span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-error/10 text-sm">
+              <span class="w-2 h-2 rounded-full bg-error"></span>
+              <span class="editorial font-semibold text-error">Bingbot</span>
+              <span class="text-on-surface-variant text-xs">Blocked</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- TESTIMONIALS — Asymmetric social proof       -->
+<!-- ============================================ -->
+<section id="proof" class="py-32 px-6 bg-surface-container-low">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal mb-20">
+      <span class="text-secondary font-bold text-xs tracking-[0.2em] uppercase font-label mb-4 block">Proof</span>
+      <div class="flex flex-col lg:flex-row justify-between items-end gap-8">
+        <h2 class="editorial text-5xl md:text-6xl font-bold text-on-surface">WHAT THE <span class="text-secondary italic">FUTURE</span> SAYS</h2>
+        <p class="text-on-surface-variant max-w-md text-lg font-body lg:text-right">Growth teams that stopped guessing and started measuring generative visibility.</p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Testimonial 1 -->
+      <div class="reveal group relative p-8 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all duration-500 overflow-hidden">
+        <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="box-shadow: inset 0 0 0 1px rgba(255,107,152,0.15)"></div>
+        <div class="flex gap-1 text-secondary mb-6">
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+        </div>
+        <p class="text-lg text-on-surface font-medium leading-relaxed mb-8 font-body">
+          "GEO Analyzer completely changed how we approach SEO. We aren't just ranking for keywords anymore; we're ranking for <span class="text-primary font-semibold">intent in ChatGPT</span>."
+        </p>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center editorial text-lg font-bold text-secondary">SJ</div>
+          <div>
+            <h4 class="font-bold text-on-surface text-sm leading-tight editorial">Sarah J.</h4>
+            <p class="text-xs text-on-surface-variant font-label">Head of Growth, TechNova</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 2 -->
+      <div class="reveal group relative p-8 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all duration-500 overflow-hidden" style="transition-delay:0.1s">
+        <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="box-shadow: inset 0 0 0 1px rgba(143,245,255,0.15)"></div>
+        <div class="flex gap-1 text-tertiary mb-6">
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+        </div>
+        <p class="text-lg text-on-surface font-medium leading-relaxed mb-8 font-body">
+          "The only tool that actually tells you <span class="text-tertiary font-semibold">why Perplexity isn't citing your site</span>. Indispensable for any serious digital marketer."
+        </p>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center editorial text-lg font-bold text-tertiary">AL</div>
+          <div>
+            <h4 class="font-bold text-on-surface text-sm leading-tight editorial">Alex L.</h4>
+            <p class="text-xs text-on-surface-variant font-label">SEO Strategist</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonial 3 -->
+      <div class="reveal group relative p-8 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-all duration-500 overflow-hidden" style="transition-delay:0.2s">
+        <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="box-shadow: inset 0 0 0 1px rgba(233,255,185,0.15)"></div>
+        <div class="flex gap-1 text-primary mb-6">
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+          <span class="material-symbols-outlined" data-fill="1">star</span>
+        </div>
+        <p class="text-lg text-on-surface font-medium leading-relaxed mb-8 font-body">
+          "We saw a <span class="text-primary font-semibold">40% increase in generative referral traffic</span> within two weeks of implementing the score recommendations. Pure magic."
+        </p>
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center editorial text-lg font-bold text-primary">EM</div>
+          <div>
+            <h4 class="font-bold text-on-surface text-sm leading-tight editorial">Elena M.</h4>
+            <p class="text-xs text-on-surface-variant font-label">Founder, ContentGrid</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- FAQ — Accordion-style questions              -->
+<!-- ============================================ -->
+<section id="faq" class="py-32 px-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="reveal text-center mb-20">
+      <span class="text-on-surface-variant font-bold text-xs tracking-[0.2em] uppercase font-label mb-4 block">Answers</span>
+      <h2 class="editorial text-5xl md:text-6xl font-bold text-on-surface">QUESTIONS? <span class="text-tertiary italic">HANDLED.</span></h2>
+    </div>
+
+    <div class="space-y-3">
+      <!-- FAQ 1 -->
+      <details class="reveal group">
+        <summary class="flex items-center justify-between p-6 bg-surface-container rounded-2xl cursor-pointer select-none hover:bg-surface-container-high transition-colors list-none [&::-webkit-details-marker]:hidden">
+          <span class="editorial font-semibold text-on-surface text-lg pr-4">What is GEO and why does it matter?</span>
+          <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-45 transition-transform duration-300 shrink-0">add</span>
+        </summary>
+        <div class="px-6 pb-6 pt-2 bg-surface-container rounded-b-2xl -mt-2">
+          <p class="text-on-surface-variant font-body leading-relaxed">
+            Generative Engine Optimization (GEO) is the practice of optimizing your content to be cited by AI-powered search engines like ChatGPT, Perplexity, Google AI Overviews, and Bing Copilot. Unlike traditional SEO which focuses on ranking links, GEO focuses on making your content the source that AI quotes. As AI search grows, sites without GEO optimization risk becoming invisible.
+          </p>
+        </div>
+      </details>
+
+      <!-- FAQ 2 -->
+      <details class="reveal group">
+        <summary class="flex items-center justify-between p-6 bg-surface-container rounded-2xl cursor-pointer select-none hover:bg-surface-container-high transition-colors list-none [&::-webkit-details-marker]:hidden">
+          <span class="editorial font-semibold text-on-surface text-lg pr-4">How is the GEO Score calculated?</span>
+          <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-45 transition-transform duration-300 shrink-0">add</span>
+        </summary>
+        <div class="px-6 pb-6 pt-2 bg-surface-container rounded-b-2xl -mt-2">
+          <p class="text-on-surface-variant font-body leading-relaxed">
+            Your score is a weighted composite of five dimensions: Citability (25%), Structural Readability (20%), Authority Signals (20%), Technical Accessibility (20%), and Multi-Modal Richness (15%). Each dimension is scored 0–100 based on dozens of specific checks, from passage word-count optimization to AI crawler permissions in your robots.txt.
+          </p>
+        </div>
+      </details>
+
+      <!-- FAQ 3 -->
+      <details class="reveal group">
+        <summary class="flex items-center justify-between p-6 bg-surface-container rounded-2xl cursor-pointer select-none hover:bg-surface-container-high transition-colors list-none [&::-webkit-details-marker]:hidden">
+          <span class="editorial font-semibold text-on-surface text-lg pr-4">What is llms.txt and do I need one?</span>
+          <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-45 transition-transform duration-300 shrink-0">add</span>
+        </summary>
+        <div class="px-6 pb-6 pt-2 bg-surface-container rounded-b-2xl -mt-2">
+          <p class="text-on-surface-variant font-body leading-relaxed">
+            llms.txt is an emerging standard — like robots.txt, but for AI engines. It tells LLM crawlers what content to prioritize, what to summarize, and what context matters. While not yet universally adopted, sites with a well-structured llms.txt are seeing measurably higher citation rates in early studies. Our analyzer checks for its presence and validates its format.
+          </p>
+        </div>
+      </details>
+
+      <!-- FAQ 4 -->
+      <details class="reveal group">
+        <summary class="flex items-center justify-between p-6 bg-surface-container rounded-2xl cursor-pointer select-none hover:bg-surface-container-high transition-colors list-none [&::-webkit-details-marker]:hidden">
+          <span class="editorial font-semibold text-on-surface text-lg pr-4">Is my data safe?</span>
+          <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-45 transition-transform duration-300 shrink-0">add</span>
+        </summary>
+        <div class="px-6 pb-6 pt-2 bg-surface-container rounded-b-2xl -mt-2">
+          <p class="text-on-surface-variant font-body leading-relaxed">
+            Absolutely. We only fetch publicly available pages — the same content any AI crawler would see. We don't store your HTML beyond the analysis session, and all audit data is encrypted in transit and at rest. No login required for your first scan.
+          </p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- FINAL CTA — Glassmorphic conversion block    -->
+<!-- ============================================ -->
+<section id="cta" class="py-24 px-6 relative overflow-hidden">
+  <div class="orb-b absolute -top-20 left-[20%] w-[500px] h-[500px] rounded-full bg-primary/[0.04] blur-[120px]"></div>
+  <div class="orb-a absolute -bottom-20 right-[15%] w-[400px] h-[400px] rounded-full bg-tertiary/[0.03] blur-[100px]"></div>
+
+  <div class="relative z-10 max-w-4xl mx-auto glass rounded-3xl p-12 md:p-20 text-center shadow-[0_40px_120px_-30px_rgba(0,0,0,0.5)]">
+    <!-- Decorative icon -->
+    <div class="absolute top-6 right-8 opacity-[0.06]">
+      <span class="material-symbols-outlined text-primary" style="font-size:8rem">auto_awesome</span>
+    </div>
+
+    <span class="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full bg-primary/10 energy-pill">
+      <span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+      <span class="text-primary text-xs font-bold tracking-[0.15em] uppercase font-label">Free Forever for 1 Page</span>
+    </span>
+
+    <h2 class="editorial text-4xl md:text-6xl font-bold text-on-surface mb-6 leading-[0.95]">
+      STOP GUESSING.<br/><span class="text-primary italic">START SCORING.</span>
+    </h2>
+    <p class="text-on-surface-variant text-lg mb-10 max-w-xl mx-auto font-body leading-relaxed">
+      Your competitors are already optimizing for AI search. Run your first audit in under 30 seconds.
+    </p>
+
+    <div class="flex flex-col sm:flex-row gap-3 max-w-2xl mx-auto">
+      <div class="flex-grow flex items-center px-5 bg-surface-container-highest rounded-xl focus-within:ring-2 focus-within:ring-primary/60 transition-all group">
+        <span class="material-symbols-outlined text-on-surface-variant group-focus-within:text-primary mr-3 transition-colors">link</span>
+        <input id="cta-url" type="url" placeholder="https://your-site.com" class="w-full py-4 bg-transparent border-none text-on-surface focus:ring-0 placeholder:text-outline font-body"/>
+      </div>
+      <button id="cta-btn" class="cta-pulse px-10 py-4 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all editorial tracking-tight whitespace-nowrap">
+        Analyze Now
+      </button>
+    </div>
+
+    <p class="mt-6 text-on-surface-variant/40 text-sm flex items-center justify-center gap-1.5 font-label">
+      <span class="material-symbols-outlined text-sm">lock</span>
+      No signup · No credit card · Results in seconds
+    </p>
+  </div>
+</section>
+
+<!-- ============================================ -->
+<!-- EMAIL MODAL                                  -->
+<!-- ============================================ -->
+<div id="email-modal" class="modal-overlay">
+  <div class="modal-box">
+    <button class="modal-close" id="modal-close-btn">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <!-- State 1: Email form -->
+    <div id="modal-form" class="modal-state active">
+      <div class="text-center mb-6">
+        <span class="material-symbols-outlined text-primary text-4xl mb-3 block">auto_awesome</span>
+        <h3 class="editorial text-2xl font-bold text-on-surface mb-2">Almost there!</h3>
+        <p class="text-on-surface-variant text-sm font-body">Enter your email and we'll send your full GEO report as soon as it's ready.</p>
+      </div>
+      <div class="mb-3 px-1">
+        <div class="text-on-surface-variant text-xs font-label mb-1 ml-1" id="modal-url-label"></div>
+      </div>
+      <div class="flex items-center px-4 bg-surface-container-highest rounded-xl focus-within:ring-2 focus-within:ring-primary/60 transition-all group mb-4">
+        <span class="material-symbols-outlined text-on-surface-variant group-focus-within:text-primary mr-3 transition-colors text-xl">mail</span>
+        <input
+          id="modal-email"
+          type="email"
+          placeholder="you@company.com"
+          class="w-full py-3.5 bg-transparent border-none text-on-surface focus:ring-0 placeholder:text-outline font-body text-sm"
+        />
+      </div>
+      <button id="modal-submit" class="w-full py-3.5 bg-gradient-to-r from-primary to-primary-container text-on-primary font-bold rounded-xl hover:scale-[1.01] active:scale-[0.99] transition-all editorial text-sm tracking-tight flex items-center justify-center gap-2">
+        <span>Send My Report</span>
+        <span class="material-symbols-outlined text-lg">arrow_forward</span>
+      </button>
+      <p class="text-center text-on-surface-variant/40 text-xs mt-3 font-label">We'll only email your report. No spam.</p>
+    </div>
+
+    <!-- State 2: Thank you -->
+    <div id="modal-thanks" class="modal-state">
+      <div class="text-center py-4">
+        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
+          <span class="material-symbols-outlined text-primary text-3xl">check_circle</span>
+        </div>
+        <h3 class="editorial text-2xl font-bold text-on-surface mb-2">You're all set!</h3>
+        <p class="text-on-surface-variant text-sm font-body max-w-xs mx-auto">Your GEO report is being generated. We'll email you the link once it's ready.</p>
+        <div class="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-surface-container-highest text-on-surface-variant text-xs font-label">
+          <span class="material-symbols-outlined text-sm spinner">progress_activity</span>
+          Analyzing...
+        </div>
+      </div>
+    </div>
+
+    <!-- State 3: Error -->
+    <div id="modal-error" class="modal-state">
+      <div class="text-center py-4">
+        <div class="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-5">
+          <span class="material-symbols-outlined text-error text-3xl">error</span>
+        </div>
+        <h3 class="editorial text-2xl font-bold text-on-surface mb-2">Something went wrong</h3>
+        <p id="modal-error-msg" class="text-on-surface-variant text-sm font-body"></p>
+        <button id="modal-retry" class="mt-5 px-6 py-2 bg-surface-container-highest text-on-surface rounded-xl font-bold text-sm editorial hover:bg-surface-bright transition-colors">
+          Try Again
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- FOOTER                                       -->
+<!-- ============================================ -->
+<footer class="py-12 px-6">
+  <div class="max-w-7xl mx-auto bg-surface-container-low rounded-3xl py-12 px-8 md:px-12">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-8 mb-10">
+      <a href="#" class="editorial text-xl font-bold text-primary tracking-tighter uppercase">GEO<span class="text-on-surface-variant">_</span>ANALYZER</a>
+      <div class="flex gap-10 items-center font-label text-sm text-on-surface-variant">
+        <a href="#" class="hover:text-tertiary transition-colors">Contact</a>
+        <a href="#" class="hover:text-tertiary transition-colors">Privacy</a>
+        <a href="#" class="hover:text-tertiary transition-colors">Terms</a>
+        <a href="#" class="hover:text-tertiary transition-colors">API</a>
+      </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8" style="border-top: 1px solid rgba(72,69,92,0.15)">
+      <div class="flex gap-3">
+        <a href="#" class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-lg">share</span>
+        </a>
+        <a href="#" class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined text-lg">language</span>
+        </a>
+      </div>
+      <span class="text-on-surface-variant/30 text-xs uppercase tracking-[0.2em] font-label">
+        © 2026 GEO Analyzer · Built for the Generative Era
+      </span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================ -->
+<!-- SCROLL REVEAL OBSERVER                       -->
+<!-- ============================================ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // --- Modal + Email Flow ---
+  const modal = document.getElementById('email-modal');
+  const modalForm = document.getElementById('modal-form');
+  const modalThanks = document.getElementById('modal-thanks');
+  const modalErrorEl = document.getElementById('modal-error');
+  const modalErrorMsg = document.getElementById('modal-error-msg');
+  const modalEmail = document.getElementById('modal-email');
+  const modalSubmit = document.getElementById('modal-submit');
+  const modalUrlLabel = document.getElementById('modal-url-label');
+  const modalCloseBtn = document.getElementById('modal-close-btn');
+  const modalRetry = document.getElementById('modal-retry');
+
+  let pendingUrl = '';
+
+  function showModal(state) {
+    modalForm.classList.remove('active');
+    modalThanks.classList.remove('active');
+    modalErrorEl.classList.remove('active');
+    document.getElementById('modal-' + state).classList.add('active');
+    modal.classList.add('open');
+    if (state === 'form') setTimeout(() => modalEmail.focus(), 350);
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+  }
+
+  function openEmailPopup(urlInput) {
+    const url = urlInput.value.trim();
+    if (!url) { urlInput.focus(); return; }
+    pendingUrl = url.startsWith('http') ? url : 'https://' + url;
+    modalUrlLabel.textContent = 'Analyzing: ' + pendingUrl;
+    showModal('form');
+  }
+
+  // Submit email
+  modalSubmit.addEventListener('click', async () => {
+    const email = modalEmail.value.trim();
+    if (!email || !email.includes('@')) { modalEmail.focus(); return; }
+
+    modalSubmit.disabled = true;
+    modalSubmit.innerHTML = '<span class="material-symbols-outlined text-lg spinner">progress_activity</span><span>Sending...</span>';
+
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: pendingUrl, email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Something went wrong');
+
+      showModal('thanks');
+      setTimeout(closeModal, 4000);
+    } catch (err) {
+      modalErrorMsg.textContent = err.message;
+      showModal('error');
+    } finally {
+      modalSubmit.disabled = false;
+      modalSubmit.innerHTML = '<span>Send My Report</span><span class="material-symbols-outlined text-lg">arrow_forward</span>';
+    }
+  });
+
+  modalEmail.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') modalSubmit.click();
+  });
+
+  // Close modal
+  modalCloseBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  // Retry
+  modalRetry.addEventListener('click', () => showModal('form'));
+
+  // Hero form → open popup
+  const heroUrl = document.getElementById('hero-url');
+  const heroBtn = document.getElementById('hero-btn');
+  heroBtn.addEventListener('click', () => openEmailPopup(heroUrl));
+  heroUrl.addEventListener('keydown', (e) => { if (e.key === 'Enter') openEmailPopup(heroUrl); });
+
+  // CTA form → open popup
+  const ctaUrl = document.getElementById('cta-url');
+  const ctaBtn = document.getElementById('cta-btn');
+  ctaBtn.addEventListener('click', () => openEmailPopup(ctaUrl));
+  ctaUrl.addEventListener('keydown', (e) => { if (e.key === 'Enter') openEmailPopup(ctaUrl); });
+});
+</script>
+</body>
+</html>
