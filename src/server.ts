@@ -21,6 +21,9 @@ app.use(express.static(path.resolve('public')));
 app.get('/', (_req, res) => {
   res.sendFile(path.resolve('geo-landing.html'));
 });
+app.get('/thank-you', (_req, res) => {
+  res.sendFile(path.resolve('thank-you.html'));
+});
 
 // API routes
 app.use('/api', analyzeRouter);

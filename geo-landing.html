@@ -1085,8 +1085,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Something went wrong');
 
-      showModal('thanks');
-      setTimeout(closeModal, 4000);
+      window.location.href = '/thank-you';
     } catch (err) {
       modalErrorMsg.textContent = err.message;
       showModal('error');

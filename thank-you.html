@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Report on its way — GEO Analyzer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = {
+  darkMode: "class",
+  theme: {
+    extend: {
+      colors: {
+        "primary": "#e9ffb9",
+        "surface-container-high": "#1f1c37",
+        "surface-dim": "#0e0c20",
+        "surface-container-low": "#131027",
+        "surface-container-highest": "#25223f",
+        "secondary-container": "#bb0058",
+        "on-surface-variant": "#aca8c3",
+        "primary-dim": "#b0ed00",
+        "on-surface": "#e7e2ff",
+        "on-primary": "#4a6600",
+        "background": "#0e0c20",
+        "surface-variant": "#25223f",
+        "primary-container": "#bbfd00",
+        "secondary": "#ff6b98",
+        "tertiary": "#8ff5ff",
+        "surface": "#0e0c20",
+        "surface-container": "#19162f",
+        "outline": "#76738c",
+        "outline-variant": "#48455c"
+      },
+      fontFamily: {
+        "headline": ["Space Grotesk"],
+        "body": ["Manrope"],
+        "label": ["Manrope"]
+      },
+      borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+    },
+  },
+}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  body {
+    background-color: #0e0c20;
+    color: #e7e2ff;
+    font-family: 'Manrope', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .editorial { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.02em; }
+  .bg-mesh {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 600px 500px at 8% 15%, rgba(255,107,152,0.06) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 600px at 92% 75%, rgba(143,245,255,0.05) 0%, transparent 70%),
+      radial-gradient(ellipse 400px 400px at 50% 50%, rgba(187,253,0,0.03) 0%, transparent 60%);
+  }
+  .glass { background: rgba(37,34,63,0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+
+  @keyframes drift-a {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(40px,-60px) scale(1.1); }
+    66% { transform: translate(-30px,40px) scale(0.95); }
+  }
+  @keyframes drift-b {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(-50px,30px) scale(1.05); }
+    66% { transform: translate(60px,-20px) scale(0.9); }
+  }
+  .orb-a { animation: drift-a 18s ease-in-out infinite; }
+  .orb-b { animation: drift-b 22s ease-in-out infinite; }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate { animation: fade-up 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+  .d1 { animation-delay: 0.15s; }
+  .d2 { animation-delay: 0.3s; }
+  .d3 { animation-delay: 0.45s; }
+  .d4 { animation-delay: 0.6s; }
+
+  @keyframes pulse-ring {
+    0% { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  .pulse-ring { animation: pulse-ring 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+
+  .grain::before {
+    content: ''; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-repeat: repeat; background-size: 128px;
+  }
+</style>
+</head>
+<body class="grain">
+<div class="bg-mesh"></div>
+
+<!-- Navigation -->
+<nav class="fixed top-5 left-1/2 -translate-x-1/2 w-[92%] max-w-6xl rounded-full glass flex justify-between items-center px-8 py-3 z-50 shadow-[0_8px_60px_-12px_rgba(14,12,32,0.8)]">
+  <a href="/" class="editorial text-xl font-bold tracking-tighter text-primary uppercase">GEO<span class="text-on-surface-variant">_</span>ANALYZER</a>
+  <a href="/" class="text-on-surface-variant hover:text-primary transition-colors editorial text-sm">Back to Home</a>
+</nav>
+
+<!-- Main content -->
+<main class="flex-1 flex items-center justify-center px-6 pt-28 pb-20 relative">
+  <!-- Ambient orbs -->
+  <div class="orb-a absolute -top-32 right-[10%] w-[500px] h-[500px] rounded-full bg-secondary/[0.07] blur-[120px]"></div>
+  <div class="orb-b absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-tertiary/[0.06] blur-[100px]"></div>
+
+  <div class="relative z-10 max-w-xl mx-auto text-center">
+
+    <!-- Animated check icon -->
+    <div class="animate relative inline-flex items-center justify-center mb-10">
+      <div class="absolute w-24 h-24 rounded-full bg-primary/10 pulse-ring"></div>
+      <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center">
+        <span class="material-symbols-outlined text-primary" style="font-size:3rem">check_circle</span>
+      </div>
+    </div>
+
+    <h1 class="animate d1 editorial text-4xl md:text-5xl font-bold text-on-surface leading-[0.95] mb-6">
+      YOUR REPORT IS<br/><span class="text-primary italic">ON ITS WAY.</span>
+    </h1>
+
+    <p class="animate d2 font-body text-on-surface-variant text-lg max-w-md mx-auto leading-relaxed mb-10">
+      We're analyzing your page across all five GEO dimensions. You'll receive your full report via email in about <span class="text-on-surface font-semibold">2-3 minutes</span>.
+    </p>
+
+    <!-- Info cards -->
+    <div class="animate d3 space-y-4 mb-10">
+      <div class="glass rounded-2xl p-5 flex items-start gap-4 text-left">
+        <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-primary text-xl">mail</span>
+        </div>
+        <div>
+          <div class="editorial font-semibold text-on-surface text-sm mb-1">Check your inbox</div>
+          <p class="text-on-surface-variant text-sm font-body leading-relaxed">The report link will arrive from <span class="text-on-surface">reports@leadroket.com</span>. If you don't see it in a couple of minutes, please check your spam or promotions folder.</p>
+        </div>
+      </div>
+
+      <div class="glass rounded-2xl p-5 flex items-start gap-4 text-left">
+        <div class="w-10 h-10 rounded-xl bg-tertiary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <span class="material-symbols-outlined text-tertiary text-xl">analytics</span>
+        </div>
+        <div>
+          <div class="editorial font-semibold text-on-surface text-sm mb-1">What's in your report</div>
+          <p class="text-on-surface-variant text-sm font-body leading-relaxed">A full GEO score across 5 dimensions, AI crawler access status, passage citability analysis, platform-specific scores, and prioritized recommendations.</p>
+        </div>
+      </div>
+    </div>
+
+    <a href="/" class="animate d4 inline-flex items-center gap-2 px-6 py-3 bg-surface-container-highest rounded-full text-on-surface-variant hover:text-primary transition-colors editorial text-sm font-semibold">
+      <span class="material-symbols-outlined text-lg">arrow_back</span>
+      Analyze another page
+    </a>
+  </div>
+</main>
+
+<!-- Footer -->
+<footer class="relative z-10 py-8 text-center">
+  <span class="text-on-surface-variant/30 text-xs uppercase tracking-[0.2em] font-label">
+    © 2026 GEO Analyzer · Built for the Generative Era
+  </span>
+</footer>
+</body>
+</html>
